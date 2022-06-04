@@ -1,23 +1,20 @@
-use std::env::Args;
-use crate::Command;
 use crate::commands::add_command::AddCommand;
 use crate::commands::help_command::HelpCommand;
 use crate::commands::list_command::ListCommand;
 use crate::handler::commands;
 use crate::handler::commands::Commands;
+use crate::Command;
+use std::env::Args;
 
 pub struct CommandHandler {
-    arguments: Args
+    arguments: Args,
 }
 
 impl CommandHandler {
-
     /// Creates a new command handler that can handle
     /// the command line input by default
     pub fn new(args: Args) -> CommandHandler {
-        CommandHandler {
-            arguments: args
-        }
+        CommandHandler { arguments: args }
     }
 
     /// Parses the string of the command into the enum with
@@ -28,7 +25,7 @@ impl CommandHandler {
             "help" => Some(Commands::Help),
             "list" => Some(Commands::List),
             "add" => Some(Commands::Add),
-            _ => None
+            _ => None,
         }
     }
 
@@ -49,7 +46,7 @@ impl CommandHandler {
         match cmd {
             Commands::Help => HelpCommand::new().execute(),
             Commands::List => ListCommand::new().execute(),
-            Commands::Add => AddCommand::new().execute()
+            Commands::Add => AddCommand::new().execute(),
         }
     }
 }
