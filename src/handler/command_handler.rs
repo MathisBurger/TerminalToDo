@@ -1,5 +1,6 @@
 use std::env::Args;
 use crate::Command;
+use crate::commands::add_command::AddCommand;
 use crate::commands::help_command::HelpCommand;
 use crate::commands::list_command::ListCommand;
 use crate::handler::commands;
@@ -26,6 +27,7 @@ impl CommandHandler {
         match command {
             "help" => Some(Commands::Help),
             "list" => Some(Commands::List),
+            "add" => Some(Commands::Add),
             _ => None
         }
     }
@@ -47,6 +49,7 @@ impl CommandHandler {
         match cmd {
             Commands::Help => HelpCommand::new().execute(),
             Commands::List => ListCommand::new().execute(),
+            Commands::Add => AddCommand::new().execute()
         }
     }
 }

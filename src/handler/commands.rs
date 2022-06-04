@@ -1,4 +1,5 @@
 pub enum Commands {
     Help,
-    List
+    List,
+    Add,
 }

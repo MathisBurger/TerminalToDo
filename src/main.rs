@@ -3,6 +3,8 @@ use crate::handler::command_handler::CommandHandler;
 
 mod commands;
 mod handler;
+mod inputs;
+mod storage_handler;
 
 fn main() {
     let mut command_handler = CommandHandler::new(std::env::args());
