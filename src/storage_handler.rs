@@ -9,7 +9,7 @@ pub struct StorageHandler {
     root_dir: PathBuf,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Task {
     pub finished: bool,
     pub title: String,
@@ -60,7 +60,6 @@ impl StorageHandler {
 
     fn get_data(&mut self) -> DataFile {
         let read_data = self.read_tasks_file();
-        println!("{}", read_data);
         let content: DataFile = serde_json::from_str(read_data.as_str()).unwrap();
         content
     }
@@ -91,6 +90,12 @@ impl StorageHandler {
             group: None
         });
         self.write_data(data);
+    }
+
+    pub fn write_task_data(&mut self, data: Vec<Task>) {
+        let mut file_data = self.get_data();
+        file_data.tasks = data;
+        self.write_data(file_data);
     }
 
 }

@@ -5,7 +5,7 @@ use std::io::Result;
 use crate::Command;
 use crate::commands::command_trait;
 use crate::commands::command_trait::CommandInfo;
-use dialoguer::{Input, Select};
+use dialoguer::{Confirm, Input, Select};
 use dialoguer::theme::ColorfulTheme;
 use crate::inputs::error_handling::InputErrorHandling;
 use crate::storage_handler::StorageHandler;
@@ -68,7 +68,14 @@ impl AddCommand {
         let input: String = Input::new()
             .with_prompt("Title")
             .interact_text().expect("Failed while inserting data");
-        self.storage_handler.add_single_task(input);
+        if self.confirm_selection() {
+            return self.storage_handler.add_single_task(input);
+        }
+        println!("Stopped");
+    }
+
+    fn confirm_selection(&mut self) -> bool {
+        Confirm::new().with_prompt("Save?").interact().unwrap()
     }
 }
 
