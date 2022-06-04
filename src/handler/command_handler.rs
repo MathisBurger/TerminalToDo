@@ -5,6 +5,7 @@ use crate::handler::commands;
 use crate::handler::commands::Commands;
 use crate::Command;
 use std::env::Args;
+use crate::commands::delete_command::DeleteCommand;
 
 pub struct CommandHandler {
     arguments: Args,
@@ -25,6 +26,7 @@ impl CommandHandler {
             "help" => Some(Commands::Help),
             "list" => Some(Commands::List),
             "add" => Some(Commands::Add),
+            "delete" => Some(Commands::Delete),
             _ => None,
         }
     }
@@ -47,6 +49,7 @@ impl CommandHandler {
             Commands::Help => HelpCommand::new().execute(),
             Commands::List => ListCommand::new().execute(),
             Commands::Add => AddCommand::new().execute(),
+            Commands::Delete => DeleteCommand::new().execute()
         }
     }
 }

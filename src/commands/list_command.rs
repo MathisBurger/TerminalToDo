@@ -14,18 +14,7 @@ pub struct ListCommand {
     storage_handler: StorageHandler,
 }
 
-impl InputErrorHandling for ListCommand {
-    /// Handles the input error
-    fn handle_select_error(&mut self, input: std::io::Result<Option<usize>>) -> Option<usize> {
-        match input {
-            Err(e) => {
-                println!("ERROR: {}", e.description());
-                None
-            }
-            Ok(val) => val,
-        }
-    }
-}
+impl InputErrorHandling for ListCommand {}
 
 impl ListCommand {
     /// Creates a new instance of the list command with

@@ -96,18 +96,7 @@ impl AddCommand {
     }
 }
 
-impl InputErrorHandling for AddCommand {
-    /// Handles the error of the select menu
-    fn handle_select_error(&mut self, input: Result<Option<usize>>) -> Option<usize> {
-        match input {
-            Err(e) => {
-                println!("ERROR: {}", e.description());
-                None
-            }
-            Ok(val) => val,
-        }
-    }
-}
+impl InputErrorHandling for AddCommand {}
 
 impl Command for AddCommand {
     /// Executes the main code of the command.

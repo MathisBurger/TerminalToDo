@@ -1,5 +1,6 @@
 use crate::commands::add_command::AddCommand;
 use crate::commands::command_trait::{Command, CommandInfo};
+use crate::commands::delete_command::DeleteCommand;
 use crate::commands::list_command::ListCommand;
 use crate::handler::commands::Commands;
 use crate::handler::commands::Commands::Help;
@@ -31,6 +32,7 @@ impl Command for HelpCommand {
             HelpCommand::new().get_command_info(),
             ListCommand::new().get_command_info(),
             AddCommand::new().get_command_info(),
+            DeleteCommand::new().get_command_info()
         ];
         for command in commands {
             println!("TITLE: {}", command.title);
