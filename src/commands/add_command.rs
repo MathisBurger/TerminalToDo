@@ -100,7 +100,7 @@ impl Command for AddCommand {
         }
         match &self.add_action.as_ref().unwrap() {
             AddAction::SingleTask => self.add_single_task(),
-            AddAction::TaskGroup => println!("Task group")
+            AddAction::TaskGroup => println!("Not implemented yet")
         }
     }
 

@@ -1,6 +1,6 @@
 use std::error::Error;
 use dialoguer::console::Term;
-use dialoguer::{MultiSelect, Select};
+use dialoguer::{Confirm, MultiSelect, Select};
 use dialoguer::theme::ColorfulTheme;
 use crate::commands::command_trait::{Command, CommandInfo};
 use crate::inputs::error_handling::InputErrorHandling;
@@ -61,6 +61,10 @@ impl Command for ListCommand {
             .items(&items)
             .default(0)
             .interact_on_opt(&Term::stderr());
+
+        if !Confirm::new().with_prompt("Save?").interact().unwrap() {
+            return;
+        }
 
         match self.handle_select_error(selection) {
             None => println!("An error occurred while selecting"),
