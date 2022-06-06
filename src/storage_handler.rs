@@ -1,9 +1,10 @@
+use std::fs;
 use platform_dirs::{AppDirs, UserDirs};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Defines the base structure of
 /// the storage handler
@@ -43,6 +44,9 @@ impl StorageHandler {
     /// if the file does not exist
     fn read_tasks_file(&mut self) -> String {
         let path = PathBuf::as_path(&self.root_dir);
+        if !Path::exists(&path) {
+            fs::create_dir(path.clone()).expect("Cannot create root data directory");
+        }
         let str_path = path.to_str().unwrap().to_owned() + "/data.json";
         let raw_file = File::open(&str_path);
         let initial_data = r#"{"tasks": [], "groups": []}"#;
