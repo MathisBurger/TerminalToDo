@@ -20,7 +20,8 @@ using your keyboard than clicking through visual user interfaces.
 
 # Installation
 
-DO NOT INSTALL, IT IS WORK IN PROGRESS.
+Just download the executable from the latest release and 
+paste it into your folder with all executables.
 
 # Usage
 
