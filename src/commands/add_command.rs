@@ -84,8 +84,26 @@ impl AddCommand {
             .with_prompt("Title")
             .interact_text()
             .expect("Failed while inserting data");
+        let mut groups = self.storage_handler.get_all_groups();
+        let mut task_group: Option<String> = None;
+        if groups.len() > 0 {
+            groups.push("❌ no group".to_string());
+            groups = groups.into_iter().rev().collect();
+            let selection = Select::with_theme(&ColorfulTheme::default())
+                .items(&groups)
+                .default(0)
+                .interact_on_opt(&Term::stderr());
+            match self.handle_select_error(selection) {
+                None => {},
+                Some(val) => {
+                    if 0 != val {
+                        task_group = Some(groups[val].clone());
+                    }
+                }
+            }
+        }
         if self.confirm_selection() {
-            return self.storage_handler.add_single_task(input);
+            return self.storage_handler.add_single_task(input, task_group);
         }
     }
 
@@ -93,6 +111,19 @@ impl AddCommand {
     /// The result of the confirmation will be returned
     fn confirm_selection(&mut self) -> bool {
         Confirm::new().with_prompt("Save?").interact().unwrap()
+    }
+
+    /// Opens a prompt for creating a new
+    /// task group. If the action is confirmed
+    /// the data will be saved
+    fn add_task_group(&mut self) {
+        let input: String = Input::new()
+            .with_prompt("Group name")
+            .interact_text()
+            .expect("Failed while inserting data");
+        if self.confirm_selection() {
+            return self.storage_handler.add_task_group(input);
+        }
     }
 }
 
@@ -107,7 +138,7 @@ impl Command for AddCommand {
         }
         match &self.add_action.as_ref().unwrap() {
             AddAction::SingleTask => self.add_single_task(),
-            AddAction::TaskGroup => println!("Not implemented yet"),
+            AddAction::TaskGroup => self.add_task_group(),
         }
     }
 

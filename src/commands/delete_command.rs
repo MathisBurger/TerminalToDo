@@ -38,32 +38,38 @@ impl Command for DeleteCommand {
     fn execute(&mut self) {
         let mut single_tasks = self
             .storage_handler
-            .get_all_tasks()
-            .into_iter()
-            .filter(|task| task.group.is_none())
-            .collect::<Vec<Task>>();
+            .get_all_tasks();
 
         let items = (&single_tasks)
             .into_iter()
-            .map(|x| x.title.clone())
+            .map(|x| {
+                if x.group.is_some() {
+                    return x.title.clone() + " (" + x.group.as_ref().unwrap().as_str() + ")";
+                }
+                return x.title.clone();
+            })
             .collect::<Vec<String>>();
 
-        let selection = Select::with_theme(&ColorfulTheme::default())
-            .items(&items)
-            .default(0)
-            .interact_on_opt(&Term::stderr());
+        if items.len() > 0 {
+            let selection = Select::with_theme(&ColorfulTheme::default())
+                .items(&items)
+                .default(0)
+                .interact_on_opt(&Term::stderr());
 
-        match self.handle_select_error(selection) {
-            None => println!("An error occurred while selecting"),
-            Some(val) => {
-                let mut new_values = vec![];
-                for i in 0..single_tasks.len() {
-                    if i != val {
-                        new_values.push(single_tasks[i].clone());
+            match self.handle_select_error(selection) {
+                None => println!("An error occurred while selecting"),
+                Some(val) => {
+                    let mut new_values = vec![];
+                    for i in 0..single_tasks.len() {
+                        if i != val {
+                            new_values.push(single_tasks[i].clone());
+                        }
                     }
+                    self.storage_handler.write_task_data(new_values);
                 }
-                self.storage_handler.write_task_data(new_values);
             }
+        } else {
+            println!("No tasks given");
         }
     }
 

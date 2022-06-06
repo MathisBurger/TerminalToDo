@@ -38,40 +38,87 @@ impl ListCommand {
         }
         return "❌".to_string();
     }
+
+    /// Opens a submenu with all tasks of a specific group
+    /// that can be selected and updated
+    fn open_group_prompt(&mut self, title: String) {
+        let mut single_tasks = self
+            .storage_handler
+            .get_all_tasks()
+            .into_iter()
+            .filter(|task| task.group == Some(title.clone()))
+            .collect::<Vec<Task>>();
+
+        let mut items = (&single_tasks)
+            .into_iter()
+            .map(|x| self.get_checked_symbol(&x) + "  " + &x.title)
+            .collect::<Vec<String>>();
+        items.push("← back".to_string());
+        items = items.into_iter().rev().collect();
+        let selection = Select::with_theme(&ColorfulTheme::default())
+            .items(&items)
+            .default(0)
+            .interact_on_opt(&Term::stderr());
+        match self.handle_select_error(selection) {
+            None => {},
+            Some(val) => {
+                if val == 0 {
+                    return self.execute();
+                }
+                if !Confirm::new().with_prompt("Save?").interact().unwrap() {
+                    return;
+                }
+                single_tasks = single_tasks.into_iter().rev().collect();
+                let mut actual = (single_tasks[val-1]).clone();
+                actual.finished = !actual.finished;
+                single_tasks[val-1] = actual.clone();
+                self.storage_handler.write_task_data(single_tasks);
+            }
+        }
+    }
 }
 
 impl Command for ListCommand {
     /// This method is called on command execution.
     /// Contains the main code of the command
     fn execute(&mut self) {
+        let mut groups = self.storage_handler.get_all_groups();
+        let group_clone = groups.clone();
         let mut single_tasks = self
             .storage_handler
             .get_all_tasks()
             .into_iter()
-            .filter(|task| task.group.is_none())
+            .filter(|task| task.group == None)
             .collect::<Vec<Task>>();
 
-        let items = (&single_tasks)
+        let mut items = (&single_tasks)
             .into_iter()
             .map(|x| self.get_checked_symbol(&x) + "  " + &x.title)
             .collect::<Vec<String>>();
+        items.append(&mut groups);
+
+        items = items.into_iter().rev().collect();
 
         let selection = Select::with_theme(&ColorfulTheme::default())
             .items(&items)
             .default(0)
             .interact_on_opt(&Term::stderr());
 
-        if !Confirm::new().with_prompt("Save?").interact().unwrap() {
-            return;
-        }
-
         match self.handle_select_error(selection) {
             None => println!("An error occurred while selecting"),
             Some(val) => {
-                let mut actual = (single_tasks[val]).clone();
-                actual.finished = !actual.finished;
-                single_tasks[val] = actual;
-                self.storage_handler.write_task_data(single_tasks);
+                println!("{}", ((val as i32) - (group_clone.len() as i32)));
+                if ((val as i32) - (group_clone.len() as i32)) >= 0 && group_clone.len() != 0 {
+                    if !Confirm::new().with_prompt("Save?").interact().unwrap() {
+                        return;
+                    }
+                    let mut actual = (single_tasks[val-group_clone.len()]).clone();
+                    actual.finished = !actual.finished;
+                    single_tasks[val-group_clone.len()] = actual.clone();
+                    self.storage_handler.write_task_data(single_tasks);
+                } else {
+                    self.open_group_prompt(items[val].clone());
+                }
             }
         }
     }

@@ -14,6 +14,7 @@ pub struct StorageHandler {
 /// A Task tyoe that defines how a task looks in the memory
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Task {
+    pub id: u64,
     pub finished: bool,
     pub title: String,
     pub group: Option<String>,
@@ -51,6 +52,7 @@ impl StorageHandler {
                 let mut f = OpenOptions::new()
                     .write(true)
                     .create(true)
+                    .read(true)
                     .truncate(true)
                     .open(str_path)
                     .unwrap();
@@ -97,23 +99,65 @@ impl StorageHandler {
         content.tasks
     }
 
+    /// Gets all groups that are provided by the data.json
+    /// file. Only the names are returned
+    pub fn get_all_groups(&mut self) -> Vec<String> {
+        let content = self.get_data();
+        content.groups
+    }
+
     /// Adds a single task to the big lists of tasks
     /// and writes them into the data.json file
-    pub fn add_single_task(&mut self, title: String) {
+    pub fn add_single_task(&mut self, title: String, group: Option<String>) {
         let mut data = self.get_data();
+        let mut new_id = 0;
+        if data.tasks.len() > 0 {
+            new_id = data.tasks.last().unwrap().id+1;
+        }
         data.tasks.push(Task {
+            id: new_id,
             finished: false,
             title,
-            group: None,
+            group,
         });
         self.write_data(data);
     }
 
+    /// Adds a new task group to the data.json file
+    /// and saves it.
+    pub fn add_task_group(&mut self, title: String) {
+        let mut data = self.get_data();
+        data.groups.push(title);
+        self.write_data(data);
+    }
+
+    /// Checks if an task with specific ID already exists
+    /// in vector.
+    pub fn id_exists_in_vec(&mut self, data: &Vec<Task>, id: u64) -> bool {
+        for i in data.iter() {
+            if i.id == id {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// Writes an vector of tasks into the
     /// data.json file
-    pub fn write_task_data(&mut self, data: Vec<Task>) {
+    pub fn write_task_data(&mut self, mut data: Vec<Task>) {
         let mut file_data = self.get_data();
-        file_data.tasks = data;
+        let mut new_tasks = vec![];
+        for el in data {
+            if !self.id_exists_in_vec(&new_tasks, el.id) {
+                new_tasks.push(el);
+            }
+        }
+        for el in file_data.tasks {
+            if !self.id_exists_in_vec(&new_tasks, el.id) {
+                new_tasks.push(el);
+            }
+        }
+        file_data.tasks = new_tasks;
         self.write_data(file_data);
     }
 }
